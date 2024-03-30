@@ -1,14 +1,13 @@
 use std::collections::BTreeMap;
-
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 use std::iter::FromIterator;
+use std::time::Instant;
+use std::io::{stdin, stdout, Read, Write};
 
 use regex::Regex;
-
 use clap::Parser;
-use std::io::{stdin, stdout, Read, Write};
 
 /// Pauses the terminal so the we can read the output before the terminal closes
 fn pause() {
@@ -25,6 +24,8 @@ struct Cli {
 }
 
 fn main() {
+    let the_time = Instant::now();
+
     let args = Cli::parse();
 
     // only show words that have been mentioned at least this number of times
@@ -72,6 +73,7 @@ fn main() {
         println!("{} {}", key, value);
     }
 
+    println!("Time taken to run: {:.2?}", the_time.elapsed());
     pause();
 }
 
