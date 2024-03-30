@@ -7,8 +7,30 @@ use std::iter::FromIterator;
 
 use regex::Regex;
 
+use clap::Parser;
+use std::io::{stdin, stdout, Read, Write};
+
+/// Pauses the terminal so the we can read the output before the terminal closes
+fn pause() {
+    let mut stdout = stdout();
+    stdout.write(b"Press Enter to exit...").unwrap();
+    stdout.flush().unwrap();
+    stdin().read(&mut [0]).unwrap();
+}
+
+#[derive(Parser)]
+struct Cli {
+    /// The path to the .txt file
+    path: std::path::PathBuf,
+}
+
 fn main() {
+    let args = Cli::parse();
+
+    // only show words that have been mentioned at least this number of times
     let min_count = 10;
+
+    // skip printing out these words and their times mentioned
     let skip_words = ["to", "the", "a", "of", "in", "not", "with", "and",
         "for", "on", "is", "be", "or", "at", "as", "from", "that", "are", "it", "by",
         "all", "up", "like", "i", "just", "our", "use", "no", "an", "but", "we", "there",
@@ -18,7 +40,7 @@ fn main() {
 
     let mut counts: BTreeMap<String, isize> = BTreeMap::new();
 
-    if let Ok(lines) = read_lines("./haystack.txt") {
+    if let Ok(lines) = read_lines(&args.path) {
         for line in lines.flatten() {
             let line = line.to_lowercase();
             let matches = word_regex.find_iter(&line);
@@ -49,6 +71,8 @@ fn main() {
 
         println!("{} {}", key, value);
     }
+
+    pause();
 }
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
