@@ -8,6 +8,7 @@ use std::io::{stdin, stdout, Read, Write};
 
 use regex::Regex;
 use clap::Parser;
+use glob::glob;
 
 /// Pauses the terminal so the we can read the output before the terminal closes
 fn pause() {
@@ -21,6 +22,9 @@ fn pause() {
 struct Cli {
     /// The path to the .txt file
     path: std::path::PathBuf,
+
+    #[arg(short = 'd')]
+    is_directory: bool,
 }
 
 fn main() {
@@ -37,24 +41,33 @@ fn main() {
         "all", "up", "like", "i", "just", "our", "use", "no", "an", "but", "we", "there",
         "too", "do", "have"];
 
-    let word_regex = Regex::new(r"[\w']+").unwrap();
+    let mut main_counts: BTreeMap<String, isize> = BTreeMap::new();
 
-    let mut counts: BTreeMap<String, isize> = BTreeMap::new();
+    if args.is_directory {
+        for entry in glob("**/*.md").expect("Failed to read glob pattern") {
+            match entry {
+                Ok(path) => {
+                    println!("{:?}", path.display());
+                    let words_from_file = find_words_in_each_line(path);
 
-    if let Ok(lines) = read_lines(&args.path) {
-        for line in lines.flatten() {
-            let line = line.to_lowercase();
-            let matches = word_regex.find_iter(&line);
+                    for word_and_count in words_from_file {
+                        let word = word_and_count.0;
+                        let count = word_and_count.1;
 
-            for word in matches.into_iter() {
-                let word = word.as_str();
-                *counts.entry(word.into()).or_insert(0) += 1;
+                        // adds the word count from the file to the main word count variable
+                        *main_counts.entry(word.into()).or_insert(count) += count;
+                    }
+                    
+                }
+                Err(e) => println!("{:?}", e),
             }
         }
+    } else {
+        main_counts = find_words_in_each_line(args.path);
     }
 
     // change from btree to a vec to sort by value and not by key
-    let mut sorted_counts = Vec::from_iter(counts);
+    let mut sorted_counts = Vec::from_iter(main_counts);
     sorted_counts.sort_by(|&(_, a), &(_, b)| b.cmp(&a));
 
     // print out the newly sorted words and their counts
@@ -75,6 +88,28 @@ fn main() {
 
     println!("Time taken to run: {:.2?}", the_time.elapsed());
     pause();
+}
+
+fn find_words_in_each_line(path: std::path::PathBuf) -> BTreeMap<String, isize> {
+    let mut counts: BTreeMap<String, isize> = BTreeMap::new();
+
+    let word_regex = Regex::new(r"[\w']+").unwrap();
+
+    if let Ok(lines) = read_lines(path) {
+        for line in lines.flatten() {
+            let line = line.to_lowercase();
+            let matches = word_regex.find_iter(&line);
+
+            for word in matches.into_iter() {
+                let word = word.as_str();
+                *counts.entry(word.into()).or_insert(0) += 1;
+            }
+        }
+    }
+
+    return counts;
+
+    
 }
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
