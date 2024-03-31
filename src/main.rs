@@ -9,6 +9,7 @@ use std::io::{stdin, stdout, Read, Write};
 use regex::Regex;
 use clap::Parser;
 use glob::glob;
+use atty::Stream;
 
 /// Pauses the terminal so the we can read the output before the terminal closes
 fn pause() {
@@ -31,6 +32,8 @@ fn main() {
     let the_time = Instant::now();
 
     let args = Cli::parse();
+
+    let max_how_many_to_print = 40;
 
     // only show words that have been mentioned at least this number of times
     let min_count = 10;
@@ -70,8 +73,14 @@ fn main() {
     let mut sorted_counts = Vec::from_iter(main_counts);
     sorted_counts.sort_by(|&(_, a), &(_, b)| b.cmp(&a));
 
+    let mut how_many_printed = 0;
+
     // print out the newly sorted words and their counts
     for (key, value) in sorted_counts.iter() {
+        // stop the loop so it doesn't fill the terminal
+        if how_many_printed > max_how_many_to_print {
+            break;
+        }
 
         // stop the loop when the count for each word is too low
         if value < &min_count {
@@ -83,11 +92,19 @@ fn main() {
             continue;
         }
 
+        how_many_printed += 1;
         println!("{} {}", key, value);
     }
 
     println!("Time taken to run: {:.2?}", the_time.elapsed());
-    pause();
+
+    if atty::is(Stream::Stdout) {
+        // ran from a terminal
+    } else {
+        // didn't run from a terminal, so pause the output so we can see what's on screen
+        pause();
+    }
+    
 }
 
 fn find_words_in_each_line(path: std::path::PathBuf) -> BTreeMap<String, isize> {
