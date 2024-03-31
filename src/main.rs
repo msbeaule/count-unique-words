@@ -50,7 +50,7 @@ fn main() {
         for entry in glob("**/*.md").expect("Failed to read glob pattern") {
             match entry {
                 Ok(path) => {
-                    println!("{:?}", path.display());
+                    //println!("{:?}", path.display());
                     let words_from_file = find_words_in_each_line(path);
 
                     for word_and_count in words_from_file {
@@ -60,7 +60,6 @@ fn main() {
                         // adds the word count from the file to the main word count variable
                         *main_counts.entry(word.into()).or_insert(count) += count;
                     }
-                    
                 }
                 Err(e) => println!("{:?}", e),
             }
@@ -125,8 +124,6 @@ fn find_words_in_each_line(path: std::path::PathBuf) -> BTreeMap<String, isize> 
     }
 
     return counts;
-
-    
 }
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
