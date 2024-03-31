@@ -33,7 +33,7 @@ fn main() {
 
     let args = Cli::parse();
 
-    let max_how_many_to_print = 40;
+    let max_how_many_to_print = 60;
     let min_character_count = 3;
     let mut files_read = 0;
 
@@ -101,7 +101,7 @@ fn main() {
         }
 
         how_many_printed += 1;
-        println!("{} {}", key, value);
+        println!("{}\t{}", key, value);
     }
 
     println!("Time taken to run: {:.2?}\tFiles read: {:?}\t Words found: {}", the_time.elapsed(), files_read, &sorted_counts.len());
