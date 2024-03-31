@@ -104,7 +104,8 @@ fn main() {
         println!("{}\t{}", key, value);
     }
 
-    println!("Time taken to run: {:.2?}\tFiles read: {:?}\t Words found: {}", the_time.elapsed(), files_read, &sorted_counts.len());
+    println!("Time taken to run: {:.2?}ms\tFiles read: {:?}\tWords found: {}",
+        the_time.elapsed().as_millis(), files_read, &sorted_counts.len());
 
     if atty::is(Stream::Stdout) {
         // ran from a terminal
