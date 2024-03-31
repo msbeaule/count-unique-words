@@ -34,7 +34,7 @@ fn main() {
     let args = Cli::parse();
 
     let max_how_many_to_print = 40;
-
+    let min_character_count = 3;
     let mut files_read = 0;
 
     // only show words that have been mentioned at least this number of times
@@ -90,6 +90,11 @@ fn main() {
             break;
         }
 
+        // skip to next iteration in the loop if the characters in a word are under the variable
+        if key.len() < min_character_count {
+            continue;
+        }
+
         // skip to next iteration in the loop so it doesn't print out a word we aren't looking for
         if skip_words.contains(&key.as_str()) {
             continue;
@@ -113,7 +118,7 @@ fn main() {
 fn find_words_in_each_line(path: std::path::PathBuf) -> BTreeMap<String, isize> {
     let mut counts: BTreeMap<String, isize> = BTreeMap::new();
 
-    let word_regex = Regex::new(r"[\w']+").unwrap();
+    let word_regex = Regex::new(r"[\w'\-\_]+").unwrap();
 
     if let Ok(lines) = read_lines(path) {
         for line in lines.flatten() {
