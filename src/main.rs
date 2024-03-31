@@ -35,6 +35,8 @@ fn main() {
 
     let max_how_many_to_print = 40;
 
+    let mut files_read = 0;
+
     // only show words that have been mentioned at least this number of times
     let min_count = 10;
 
@@ -52,6 +54,7 @@ fn main() {
                 Ok(path) => {
                     //println!("{:?}", path.display());
                     let words_from_file = find_words_in_each_line(path);
+                    files_read += 1;
 
                     for word_and_count in words_from_file {
                         let word = word_and_count.0;
@@ -66,6 +69,7 @@ fn main() {
         }
     } else {
         main_counts = find_words_in_each_line(args.path);
+        files_read += 1;
     }
 
     // change from btree to a vec to sort by value and not by key
@@ -95,7 +99,7 @@ fn main() {
         println!("{} {}", key, value);
     }
 
-    println!("Time taken to run: {:.2?}", the_time.elapsed());
+    println!("Time taken to run: {:.2?}\tFiles read: {:?}\t Words found: {}", the_time.elapsed(), files_read, &sorted_counts.len());
 
     if atty::is(Stream::Stdout) {
         // ran from a terminal
