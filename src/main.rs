@@ -11,21 +11,7 @@ use clap::Parser;
 use glob::glob;
 use atty::Stream;
 
-
-// max of how many words to print out to console
-const MAX_HOW_MANY_TO_PRINT: isize = 60;
-
-// minimum number of characters a word needs to be printed out
-const MIN_CHARACTER_COUNT: usize = 3;
-
-// only show words that have been mentioned at least this number of times
-const MIN_COUNT: isize = 10;
-
-// skip printing out these words and their times mentioned
-const SKIP_WORDS: [&str; 35] = ["to", "the", "a", "of", "in", "not", "with", "and",
-    "for", "on", "is", "be", "or", "at", "as", "from", "that", "are", "it", "by",
-    "all", "up", "like", "i", "just", "our", "use", "no", "an", "but", "we", "there",
-    "too", "do", "have"];
+mod options;
 
 
 #[derive(Parser)]
@@ -79,22 +65,22 @@ fn main() {
     // print out the newly sorted words and their counts
     for (key, value) in sorted_counts.iter() {
         // stop the loop so it doesn't fill the terminal
-        if how_many_printed > MAX_HOW_MANY_TO_PRINT {
+        if how_many_printed > options::MAX_HOW_MANY_TO_PRINT {
             break;
         }
 
         // stop the loop when the count for each word is too low
-        if value < &MIN_COUNT {
+        if value < &options::MIN_COUNT {
             break;
         }
 
         // skip to next iteration in the loop if the characters in a word are under the variable
-        if key.len() < MIN_CHARACTER_COUNT {
+        if key.len() < options::MIN_CHARACTER_COUNT {
             continue;
         }
 
         // skip to next iteration in the loop so it doesn't print out a word we aren't looking for
-        if SKIP_WORDS.contains(&key.as_str()) {
+        if options::SKIP_WORDS.contains(&key.as_str()) {
             continue;
         }
 

@@ -1,4 +1,7 @@
 *.txt
 *.csv
 
+# don't commit the actual options.rs
+options.rs
+
 /target

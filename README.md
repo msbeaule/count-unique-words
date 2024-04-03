@@ -2,7 +2,7 @@
 
 Counts how many times each word appears in text files.
 
-In `main.rs`, you can specify what words to skip, to only show the words that have a certain minimum of hits, or only show the first x number of words.
+Make a copy of `example-options.rs` and rename to `options.rs`. In this file, you can specify what words to skip, to only show the words that have a certain minimum of hits, or only show the first x number of words.
 
 ## Run
 
