@@ -11,13 +11,22 @@ use clap::Parser;
 use glob::glob;
 use atty::Stream;
 
-/// Pauses the terminal so the we can read the output before the terminal closes
-fn pause() {
-    let mut stdout = stdout();
-    stdout.write(b"Press Enter to exit...").unwrap();
-    stdout.flush().unwrap();
-    stdin().read(&mut [0]).unwrap();
-}
+
+// max of how many words to print out to console
+const MAX_HOW_MANY_TO_PRINT: isize = 60;
+
+// minimum number of characters a word needs to be printed out
+const MIN_CHARACTER_COUNT: usize = 3;
+
+// only show words that have been mentioned at least this number of times
+const MIN_COUNT: isize = 10;
+
+// skip printing out these words and their times mentioned
+const SKIP_WORDS: [&str; 35] = ["to", "the", "a", "of", "in", "not", "with", "and",
+    "for", "on", "is", "be", "or", "at", "as", "from", "that", "are", "it", "by",
+    "all", "up", "like", "i", "just", "our", "use", "no", "an", "but", "we", "there",
+    "too", "do", "have"];
+
 
 #[derive(Parser)]
 struct Cli {
@@ -33,18 +42,7 @@ fn main() {
 
     let args = Cli::parse();
 
-    let max_how_many_to_print = 60;
-    let min_character_count = 3;
     let mut files_read = 0;
-
-    // only show words that have been mentioned at least this number of times
-    let min_count = 10;
-
-    // skip printing out these words and their times mentioned
-    let skip_words = ["to", "the", "a", "of", "in", "not", "with", "and",
-        "for", "on", "is", "be", "or", "at", "as", "from", "that", "are", "it", "by",
-        "all", "up", "like", "i", "just", "our", "use", "no", "an", "but", "we", "there",
-        "too", "do", "have"];
 
     let mut main_counts: BTreeMap<String, isize> = BTreeMap::new();
 
@@ -81,22 +79,22 @@ fn main() {
     // print out the newly sorted words and their counts
     for (key, value) in sorted_counts.iter() {
         // stop the loop so it doesn't fill the terminal
-        if how_many_printed > max_how_many_to_print {
+        if how_many_printed > MAX_HOW_MANY_TO_PRINT {
             break;
         }
 
         // stop the loop when the count for each word is too low
-        if value < &min_count {
+        if value < &MIN_COUNT {
             break;
         }
 
         // skip to next iteration in the loop if the characters in a word are under the variable
-        if key.len() < min_character_count {
+        if key.len() < MIN_CHARACTER_COUNT {
             continue;
         }
 
         // skip to next iteration in the loop so it doesn't print out a word we aren't looking for
-        if skip_words.contains(&key.as_str()) {
+        if SKIP_WORDS.contains(&key.as_str()) {
             continue;
         }
 
@@ -140,4 +138,12 @@ fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where P: AsRef<Path>, {
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
+}
+
+/// Pauses the terminal so the we can read the output before the terminal closes
+fn pause() {
+    let mut stdout = stdout();
+    stdout.write(b"Press Enter to exit...").unwrap();
+    stdout.flush().unwrap();
+    stdin().read(&mut [0]).unwrap();
 }
