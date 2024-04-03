@@ -60,12 +60,14 @@ fn main() {
     let mut sorted_counts = Vec::from_iter(main_counts);
     sorted_counts.sort_by(|&(_, a), &(_, b)| b.cmp(&a));
 
-    let mut how_many_printed = 0;
+    let mut how_many_found = 0;
+    let mut sorted_ones_to_print: Vec<(String, isize)> = Vec::with_capacity(options::MAX_HOW_MANY_TO_PRINT as usize);
+    let mut longest_word_length = 0;
 
-    // print out the newly sorted words and their counts
+    // find the ones to print
     for (key, value) in sorted_counts.iter() {
         // stop the loop so it doesn't fill the terminal
-        if how_many_printed > options::MAX_HOW_MANY_TO_PRINT {
+        if how_many_found > options::MAX_HOW_MANY_TO_PRINT {
             break;
         }
 
@@ -84,12 +86,30 @@ fn main() {
             continue;
         }
 
-        how_many_printed += 1;
-        println!("{}\t{}", key, value);
+        if longest_word_length < key.len() {
+            longest_word_length = key.len();
+        }
+
+        how_many_found += 1;
+        sorted_ones_to_print.push((key.clone(), *value));
     }
 
-    println!("Time taken to run: {:.2?}ms\tFiles read: {:?}\tWords found: {}",
-        the_time.elapsed().as_millis(), files_read, &sorted_counts.len());
+    // print out all the ones found
+    for (key, value) in sorted_ones_to_print.iter() {
+        if options::ALIGN_TABS {
+            // scuffed implementation assuming words aren't too long
+            if key.len() < 8 {
+                println!("{}\t\t{}", key, value);
+            } else {
+                println!("{}\t{}", key, value);
+            }
+        } else {
+            println!("{}\t{}", key, value);
+        }
+    }
+
+    println!("Time taken to run: {:.2?}ms\tFiles read: {:?}\tWords found: {}\nLength of longest printed word: {}",
+        the_time.elapsed().as_millis(), files_read, &sorted_counts.len(), longest_word_length);
 
     if atty::is(Stream::Stdout) {
         // ran from a terminal

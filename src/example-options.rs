@@ -12,3 +12,5 @@ const SKIP_WORDS: [&str; 36] = ["to", "the", "a", "of", "in", "not", "with", "an
     "for", "on", "is", "be", "or", "at", "as", "from", "that", "are", "it", "by",
     "all", "up", "like", "i", "just", "our", "use", "no", "an", "but", "we", "there",
     "too", "do", "have", "they"];
+
+pub const ALIGN_TABS: bool = true;
