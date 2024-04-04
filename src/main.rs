@@ -30,7 +30,26 @@ fn main() {
 
     let mut files_read = 0;
 
-    let mut main_counts: BTreeMap<String, isize> = BTreeMap::new();
+    let mut main_counts: BTreeMap<String, usize> = BTreeMap::new();
+
+    // common groupings of words, and their misspellings
+    let mut synonyms:Vec<(usize, Vec<&str>)> = vec![
+        (0, vec!["house", "housing", "home", "rental", "rent", "condo", "apartment"]),
+        (0, vec!["beautiful", "vibrant", "beauty"]),
+        (0, vec!["marina", "water", "waterfront", "boardwalk", "launch", "boat", "beach", "beaches", "sea", "seaside", "ocean"]),
+        (0, vec!["walk", "walking", "walks", "walkable", "sidewalk", "path", "paths", "trail", "trails"]),
+        (0, vec!["bike", "bikes", "biking", "cycle", "cycling", "cycles"]),
+        (0, vec!["green", "air", "natural", "nature", "river", "forest", "mountain", "mountains"]),
+        (0, vec!["park", "parks"]),
+        (0, vec!["retail", "store", "stores", "shop", "shops", "shopping"]),
+        (0, vec!["restaurant", "restaurants", "cafe", "cafes", "coffee"]),
+        (0, vec!["senior", "seniors", "elder", "elderly", "retire", "retirement"]),
+        (0, vec!["police", "law", "crime", "drug", "drugs"]),
+        (0, vec!["medical", "med", "nurse", "dentist", "doctor", "dr", "health", "healthcare"]),
+        (0, vec!["village", "small", "chill"]),
+        (0, vec!["music", "art", "arts", "culture", "cultural"]),
+        (0, vec!["tourist", "tourists", "tour", "tourism", "visitor", "visitors"]),
+    ];
 
     if args.is_directory {
         for entry in glob("**/*.md").expect("Failed to read glob pattern") {
@@ -61,8 +80,22 @@ fn main() {
     sorted_counts.sort_by(|&(_, a), &(_, b)| b.cmp(&a));
 
     let mut how_many_found = 0;
-    let mut sorted_ones_to_print: Vec<(String, isize)> = Vec::with_capacity(options::MAX_HOW_MANY_TO_PRINT as usize);
+    let mut sorted_ones_to_print: Vec<(String, usize)> = Vec::with_capacity(options::MAX_HOW_MANY_TO_PRINT as usize);
     let mut longest_word_length = 0;
+
+    sorted_counts.retain_mut(|x| {
+        x.1 += 1;
+        for group in &mut synonyms {
+            if group.1.contains(&x.0.as_str()) {
+                group.0 += x.1;
+                return false;
+            }
+            
+        }
+        return true; // keep the value here
+    });
+
+    synonyms.sort_by(|&(a, _), &(b, _)| b.cmp(&a));
 
     // find the ones to print
     for (key, value) in sorted_counts.iter() {
@@ -94,6 +127,8 @@ fn main() {
         sorted_ones_to_print.push((key.clone(), *value));
     }
 
+    println!("Individual words:");
+
     // print out all the ones found
     for (key, value) in sorted_ones_to_print.iter() {
         if options::ALIGN_TABS {
@@ -108,6 +143,12 @@ fn main() {
         }
     }
 
+    println!("\n\nGrouped words:");
+
+    for (value, strings) in synonyms {
+        println!("{}\t{:?}", value, strings);
+    }
+
     println!("Time taken to run: {:.2?}ms\tFiles read: {:?}\tWords found: {}\nLength of longest printed word: {}",
         the_time.elapsed().as_millis(), files_read, &sorted_counts.len(), longest_word_length);
 
@@ -120,8 +161,8 @@ fn main() {
     
 }
 
-fn find_words_in_each_line(path: std::path::PathBuf) -> BTreeMap<String, isize> {
-    let mut counts: BTreeMap<String, isize> = BTreeMap::new();
+fn find_words_in_each_line(path: std::path::PathBuf) -> BTreeMap<String, usize> {
+    let mut counts: BTreeMap<String, usize> = BTreeMap::new();
 
     let word_regex = Regex::new(r"[\w'\-\_]+").unwrap();
 
