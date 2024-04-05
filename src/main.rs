@@ -37,10 +37,11 @@ fn main() {
         (0, vec!["house", "housing", "home", "rental", "rent", "condo", "apartment"]),
         (0, vec!["beautiful", "vibrant", "beauty"]),
         (0, vec!["marina", "water", "waterfront", "boardwalk", "launch", "boat", "beach", "beaches", "sea", "seaside", "ocean"]),
-        (0, vec!["walk", "walking", "walks", "walkable", "sidewalk", "path", "paths", "trail", "trails"]),
+        (0, vec!["walk", "walking", "walks", "walkable", "sidewalk", "path", "paths", "trail", "trails", "pedestrian", "pedestrians"]),
         (0, vec!["bike", "bikes", "biking", "cycle", "cycling", "cycles"]),
         (0, vec!["green", "air", "natural", "nature", "river", "forest", "mountain", "mountains"]),
         (0, vec!["park", "parks"]),
+        (0, vec!["parking", "traffic"]),
         (0, vec!["retail", "store", "stores", "shop", "shops", "shopping"]),
         (0, vec!["restaurant", "restaurants", "cafe", "cafes", "coffee"]),
         (0, vec!["senior", "seniors", "elder", "elderly", "retire", "retirement"]),
@@ -49,6 +50,7 @@ fn main() {
         (0, vec!["village", "small", "chill"]),
         (0, vec!["music", "art", "arts", "culture", "cultural"]),
         (0, vec!["tourist", "tourists", "tour", "tourism", "visitor", "visitors"]),
+        (0, vec!["hotel", "hotels", "motel", "motels", "accommodation", "accommodations"]),
     ];
 
     if args.is_directory {
