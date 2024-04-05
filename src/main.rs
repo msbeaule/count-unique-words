@@ -12,6 +12,7 @@ use glob::glob;
 use atty::Stream;
 
 mod options;
+mod words;
 
 
 #[derive(Parser)]
@@ -32,26 +33,16 @@ fn main() {
 
     let mut main_counts: BTreeMap<String, usize> = BTreeMap::new();
 
-    // common groupings of words, and their misspellings
-    let mut synonyms:Vec<(usize, Vec<&str>)> = vec![
-        (0, vec!["house", "housing", "home", "rental", "rent", "condo", "apartment"]),
-        (0, vec!["beautiful", "vibrant", "beauty"]),
-        (0, vec!["marina", "water", "waterfront", "boardwalk", "launch", "boat", "beach", "beaches", "sea", "seaside", "ocean"]),
-        (0, vec!["walk", "walking", "walks", "walkable", "sidewalk", "path", "paths", "trail", "trails", "pedestrian", "pedestrians"]),
-        (0, vec!["bike", "bikes", "biking", "cycle", "cycling", "cycles"]),
-        (0, vec!["green", "air", "natural", "nature", "river", "forest", "mountain", "mountains"]),
-        (0, vec!["park", "parks"]),
-        (0, vec!["parking", "traffic"]),
-        (0, vec!["retail", "store", "stores", "shop", "shops", "shopping"]),
-        (0, vec!["restaurant", "restaurants", "cafe", "cafes", "coffee"]),
-        (0, vec!["senior", "seniors", "elder", "elderly", "retire", "retirement"]),
-        (0, vec!["police", "law", "crime", "drug", "drugs"]),
-        (0, vec!["medical", "med", "nurse", "dentist", "doctor", "dr", "health", "healthcare"]),
-        (0, vec!["village", "small", "chill"]),
-        (0, vec!["music", "art", "arts", "culture", "cultural"]),
-        (0, vec!["tourist", "tourists", "tour", "tourism", "visitor", "visitors"]),
-        (0, vec!["hotel", "hotels", "motel", "motels", "accommodation", "accommodations"]),
-    ];
+    let mut synonyms:Vec<(usize, Vec<&str>)> = vec![];
+
+    // pulls in the word groups from words.rs
+    let groups_of_words = words::get_synonyms().clone();
+
+    // combines the groups_of_words into a tuple array so we can count the words
+    for group in groups_of_words {
+        let pair = (0, group);
+        synonyms.push(pair);
+    }
 
     if args.is_directory {
         for entry in glob("**/*.md").expect("Failed to read glob pattern") {

@@ -1,7 +1,8 @@
 *.txt
 *.csv
 
-# don't commit the actual options.rs
+# don't commit the actual options.rs or words.rs, these are ones to customize
 options.rs
+words.rs
 
 /target
